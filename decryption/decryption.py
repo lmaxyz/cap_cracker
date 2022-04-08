@@ -1,10 +1,11 @@
 from asyncio import get_event_loop, sleep
+from aiosqlite import Connection
 from concurrent.futures import ProcessPoolExecutor
 from .queue import RedisQueue
 
 
 class DecryptionTaskManager:
-    def __init__(self, db_connection, redis_client):
+    def __init__(self, db_connection: Connection, redis_client):
         self._db_connection = db_connection
         self._redis_queue = RedisQueue(redis_client, "decryption_queue")
 
@@ -26,7 +27,11 @@ class DecryptionTaskManager:
         pass
     
     async def __add_task_to_database(self, file_path) -> int:
+        # self._db_connection.execute_insert()
         return 1
+
+    async def get_task_list(self):
+        return []
 
 
 class Decrypter:

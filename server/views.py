@@ -6,7 +6,10 @@ from .services import add_file_to_decryption_queue
 
 @aiohttp_jinja2.template('index.html')
 async def index(request):
-    return {'queue': []}
+    task_manager = request.app['task_manager']
+    all_tasks = await task_manager.get_task_list()
+
+    return {'queue': all_tasks}
 
 
 async def add_file(request: web.Request):
@@ -17,6 +20,7 @@ async def add_file(request: web.Request):
     if not file_name.endswith(".cap") and not file_name.endswith(".pcap"):
         return web.Response(text="Wrong file format", status=400)
 
-    print(file)
-    await add_file_to_decryption_queue(file.file, file.filename)
+    task_manager = request.app['task_manager']
+    await add_file_to_decryption_queue(file, task_manager)
+
     return web.Response(text="OK")

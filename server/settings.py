@@ -5,7 +5,7 @@ import yaml
 BASE_DIR = pathlib.Path(__file__).parent.parent
 config_path = BASE_DIR / "config" / "app.yaml"
 
-CAP_FILES_STORAGE = BASE_DIR / 'cap_files'
+CAP_FILES_STORAGE = BASE_DIR / "cap_files"
 
 if not CAP_FILES_STORAGE.exists():
     CAP_FILES_STORAGE.mkdir(parents=True)
@@ -18,3 +18,5 @@ def get_config(path):
 
 
 config = get_config(config_path)
+
+STATIC_DIR = BASE_DIR / "static"

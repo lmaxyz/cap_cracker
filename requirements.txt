@@ -1,5 +1,7 @@
 aiohttp==3.*
+jinja2
 aiohttp_jinja2 == 1.*
 aioredis == 2.*
 aiosqlite
+aiofiles
 PyYaml == 6.*

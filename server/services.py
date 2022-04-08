@@ -1,7 +1,9 @@
 import os
 import time
+import aiofiles
 
 from .settings import CAP_FILES_STORAGE
+from decryption import DecryptionTaskManager
 
 
 def remove_file(queue):
@@ -14,12 +16,16 @@ def remove_file(queue):
         print(f"{file_name} deleted")
 
 
-async def save_file(file, file_name):
-    with open(CAP_FILES_STORAGE / file_name, "wb") as f:
-        f.write(file.read())
+async def save_file(file, file_name) -> str:
+    dest_path = CAP_FILES_STORAGE / file_name
+
+    async with aiofiles.open(dest_path, "wb") as f:
+        await f.write(file.read())
+
+    return dest_path
 
 
-async def add_file_to_decryption_queue(file, file_name):
-    await save_file(file, file_name)
-    file_path = CAP_FILES_STORAGE/file_name
+async def add_file_to_decryption_queue(file, task_manager: DecryptionTaskManager):
+    saved_file_path = await save_file(file.file, file.file_name)
+    await task_manager.push_new_task(saved_file_path)
     print("process was started")
