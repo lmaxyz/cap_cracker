@@ -1,0 +1,5 @@
+aiohttp==3.*
+aiohttp_jinja2 == 1.*
+aioredis == 2.*
+aiosqlite
+PyYaml == 6.*
