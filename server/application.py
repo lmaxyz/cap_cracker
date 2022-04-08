@@ -1,20 +1,16 @@
-import sys
 import asyncio
 import aiohttp_jinja2
 import jinja2
 
 from aiohttp import web
 
-from settings import BASE_DIR
-sys.path.append(str(BASE_DIR))
-
-from application.cleanup_events import setup_cleanup_events
-from application.startup_events import setup_startup_events
-
-from application.routes import setup_routes
+from .settings import BASE_DIR
+from .cleanup_events import setup_cleanup_events
+from .startup_events import setup_startup_events
+from .routes import setup_routes
 
 
-async def main(app):
+async def _serve(app):
     runner = web.AppRunner(app)
     await runner.setup()
 
@@ -28,7 +24,7 @@ async def main(app):
         await runner.cleanup()
 
 
-def create_application():
+def _create_application():
     app = web.Application()
     setup_startup_events(app)
     setup_cleanup_events(app)
@@ -39,9 +35,9 @@ def create_application():
     return app
 
 
-if __name__ == "__main__":
-    app = create_application()
+def start_app():
+    app = _create_application()
     try:
-        asyncio.run(main(app))
+        asyncio.run(_serve(app))
     except KeyboardInterrupt:
         pass

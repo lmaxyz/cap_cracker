@@ -1,7 +1,7 @@
 import os
 import time
 
-from application.settings import CAP_FILES_STORAGE
+from .settings import CAP_FILES_STORAGE
 
 
 def remove_file(queue):

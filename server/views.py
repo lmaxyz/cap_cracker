@@ -1,7 +1,7 @@
 from aiohttp import web
 import aiohttp_jinja2
 
-from services import add_file_to_decryption_queue
+from .services import add_file_to_decryption_queue
 
 
 @aiohttp_jinja2.template('index.html')
