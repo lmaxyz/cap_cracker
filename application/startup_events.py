@@ -9,8 +9,7 @@ def setup_startup_events(application):
 
 
 async def run_decrypter(application):
-    decrypter = Decrypter(None)
-    await decrypter.run()
+    decrypter = Decrypter(application['database'])
     application['decrypter'] = decrypter
 
 
@@ -19,6 +18,6 @@ async def start_sqlite(application):
 
 
 _STARTUP_EVENTS = [
+    start_sqlite,
     run_decrypter,
-    start_sqlite
 ]

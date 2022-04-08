@@ -14,7 +14,21 @@ from application.startup_events import setup_startup_events
 from application.routes import setup_routes
 
 
-async def main():
+async def main(app):
+    runner = web.AppRunner(app)
+    await runner.setup()
+
+    try:
+        site = web.TCPSite(runner, 'localhost', 8080)
+        await site.start()
+
+        while True:
+            await asyncio.sleep(3600)
+    finally:
+        await runner.cleanup()
+
+
+def create_application():
     app = web.Application()
     setup_startup_events(app)
     setup_cleanup_events(app)
@@ -22,15 +36,12 @@ async def main():
 
     aiohttp_jinja2.setup(app, loader=jinja2.FileSystemLoader(BASE_DIR/'templates'))
 
-    runner = web.AppRunner(app)
-    await runner.setup()
-    site = web.TCPSite(runner)
-    await site.start()
-
-    await asyncio.Event().wait()
-
+    return app
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
-    
+    app = create_application()
+    try:
+        asyncio.run(main(app))
+    except KeyboardInterrupt:
+        pass

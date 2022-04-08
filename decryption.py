@@ -1,4 +1,4 @@
-from asyncio import get_event_loop, sleep, ProactorEventLoop
+from asyncio import get_event_loop, sleep
 from concurrent.futures import ProcessPoolExecutor
 
 
@@ -7,9 +7,6 @@ class Decrypter:
         self._event_loop = get_event_loop()
         self._task_manager = DecryptionTaskManager(db_connection)
         self._executor = ProcessPoolExecutor(max_workers=2)
-        self._decryption_task = None
-
-    async def run(self):
         self._decryption_task = self._event_loop.create_task(self._run_decryption_loop())
 
     async def _run_decryption_loop(self):
@@ -28,10 +25,6 @@ class Decrypter:
     async def stop(self):
         if self._decryption_task is not None and not self._decryption_task.cancelled():
             self._decryption_task.cancel()
-
-        await self._decryption_task
-        self._event_loop.stop()
-        self._event_loop.close()
 
     def _decrypt(self, file_path):
         print(f"Decrypt file {file_path}")
