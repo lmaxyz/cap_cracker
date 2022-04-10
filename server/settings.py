@@ -1,9 +1,9 @@
 import pathlib
 import yaml
 
-
-BASE_DIR = pathlib.Path(__file__).parent.parent
-config_path = BASE_DIR / "config" / "app.yaml"
+_APP_DIR = pathlib.Path(__file__).parent
+BASE_DIR = _APP_DIR.parent
+config_path = _APP_DIR / "config" / "app.yaml"
 
 CAP_FILES_STORAGE = BASE_DIR / "cap_files"
 

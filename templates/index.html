@@ -9,8 +9,8 @@
 <body>
 <div class="container">
     <div class="row mt-3">
-        <div class="col-4 offset-4">
-            <h1>Decrypt CAP file</h1>
+        <div class="col-4 offset-3">
+            <h1>Crack CAP file 🏴‍☠️</h1>
             <form class="decrypt_form mt-3" action="" method="post" enctype="multipart/form-data">
                 <input required type="file" accept="application/vnd.tcpdump.pcap" name="cap_file">
                 <button class="btn btn-primary mt-3" type="submit">Submit</button>
@@ -18,14 +18,26 @@
         </div>
     </div>
     <div class="row mt-5">
-        <div class="col-4 offset-4">
-            <h2>Files queue</h2>
-            <table class="table">
-                <tr>
-                    <th>File name</th>
-                    <th>Status</th>
-                </tr>
-            </table>
+        <div class="col-6 offset-3">
+            <h2>Task queue</h2>
+            {% if tasks %}
+                <table class="table">
+                    <tr>
+                        <th>ID</th>
+                        <th>File name</th>
+                        <th>Status</th>
+                    </tr>
+                    {% for task in tasks %}
+                        <tr>
+                            <td>{{ task.task_id }}</td>
+                            <td>{{ task.path_file }}</td>
+                            <td><b>{{ task.status_str }}</b></td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            {% else %}
+                <div class="alert alert-info mt-3"><b>Queue is empty</b></div>
+            {% endif %}
         </div>
     </div>
 </div>

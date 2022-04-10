@@ -21,6 +21,7 @@ async def _serve(app):
         while True:
             await asyncio.sleep(3600)
     finally:
+        print('Cleanup...')
         await runner.cleanup()
 
 

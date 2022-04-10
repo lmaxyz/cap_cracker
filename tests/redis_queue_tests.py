@@ -39,5 +39,6 @@ class TestRedisQueue(aiounittest.AsyncTestCase):
         
         self.assertEqual(next_task_id, task_id_list[0])
 
+
 if __name__ == "__main__":
     unittest.main()

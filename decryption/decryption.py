@@ -1,12 +1,12 @@
 from asyncio import get_event_loop, sleep
-from aiosqlite import Connection
 from concurrent.futures import ProcessPoolExecutor
 from .queue import RedisQueue
+from .db_clients import SQLiteClient
 
 
 class DecryptionTaskManager:
-    def __init__(self, db_connection: Connection, redis_client):
-        self._db_connection = db_connection
+    def __init__(self, db_client, redis_client):
+        self._db_client: SQLiteClient = db_client
         self._redis_queue = RedisQueue(redis_client, "decryption_queue")
 
     async def get_unhandled_task(self):
@@ -27,11 +27,10 @@ class DecryptionTaskManager:
         pass
     
     async def __add_task_to_database(self, file_path) -> int:
-        # self._db_connection.execute_insert()
-        return 1
+        return await self._db_client.add_task(file_path)
 
     async def get_task_list(self):
-        return []
+        return await self._db_client.get_all_tasks()
 
 
 class Decrypter:

@@ -9,7 +9,7 @@ async def index(request):
     task_manager = request.app['task_manager']
     all_tasks = await task_manager.get_task_list()
 
-    return {'queue': all_tasks}
+    return {'tasks': all_tasks}
 
 
 async def add_file(request: web.Request):
@@ -23,4 +23,5 @@ async def add_file(request: web.Request):
     task_manager = request.app['task_manager']
     await add_file_to_decryption_queue(file, task_manager)
 
-    return web.Response(text="OK")
+    raise web.HTTPFound('/')
+
