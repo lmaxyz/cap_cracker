@@ -12,7 +12,7 @@ async def index(request):
     return {'tasks': all_tasks}
 
 
-async def add_file(request: web.Request):
+async def push_to_queue(request: web.Request):
     post = await request.post()
     file = post.get("cap_file")
     file_name = file.filename
