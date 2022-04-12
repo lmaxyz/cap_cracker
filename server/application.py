@@ -10,7 +10,7 @@ from .startup_events import setup_startup_events
 from .routes import setup_routes
 
 
-async def _serve(app):
+async def _run_app(app):
     runner = web.AppRunner(app)
     await runner.setup()
 
@@ -38,7 +38,15 @@ def _create_application():
 
 def start_app():
     app = _create_application()
-    try:
-        asyncio.run(_serve(app))
-    except KeyboardInterrupt:
-        pass
+    web.run_app(app)
+
+    # app_task = loop.create_task(_run_app(app))
+    # try:
+    #     loop.run_until_complete(app_task)
+    # except KeyboardInterrupt:
+    #     pass
+    # finally:
+    #     app_task.cancel()
+    #     asyncio.gather(app_task)
+    #     loop.run_until_complete(loop.shutdown_asyncgens())
+    #     loop.close()

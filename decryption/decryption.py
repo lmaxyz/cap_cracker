@@ -1,7 +1,9 @@
+import asyncio
 from asyncio import get_event_loop, sleep
 from concurrent.futures import ProcessPoolExecutor
 from .queue import RedisQueue
 from .db_clients import SQLiteClient
+from .task import TaskStatus
 
 
 class DecryptionTaskManager:
@@ -9,22 +11,25 @@ class DecryptionTaskManager:
         self._db_client: SQLiteClient = db_client
         self._redis_queue = RedisQueue(redis_client, "decryption_queue")
 
-    async def get_unhandled_task(self):
-        return await self._redis_queue.get_next_task_id()
+    async def get_next_task(self):
+        task_id = await self._redis_queue.get_next_task_id()
+
+        if task_id is None:
+            return None
+
+        task = await self._db_client.get_task(task_id)
+        return task
 
     async def push_new_task(self, file_path):
         task_id = await self.__add_task_to_database(file_path)
         
         try:
             await self._redis_queue.push_task_id(task_id)
-        except:
-            await self.set_task_status(task_id, "failed")
+        except Exception:
+            await self.set_task_status(task_id, TaskStatus.FAILED)
 
-    async def handle_task(self, task_id):
-        pass
-
-    async def set_task_status(self, task_id, status, status_msg=None):
-        pass
+    async def set_task_status(self, task_id: int, status: TaskStatus, status_msg=None):
+        await self._db_client.change_task_status(task_id, status)
     
     async def __add_task_to_database(self, file_path) -> int:
         return await self._db_client.add_task(file_path)
@@ -42,21 +47,30 @@ class Decrypter:
 
     async def _run_decryption_loop(self):
         while True:
-            if (file_path := await self._task_manager.get_unhandled_task()) is not None:
-                print(file_path)
-                # await self._event_loop.run_in_executor(self._executor, self._decrypt, (file_path,))
-            print("Here")
+            try:
+                if (task := await self._task_manager.get_next_task()) is not None:
+                    print(task.path_file)
 
-            if self._event_loop.is_closed():
-                print('broken')
+                    await self._event_loop.run_in_executor(self._executor, self._decrypt, self, task.path_file)
+                    await sleep(5)
+                    await self._task_manager.set_task_status(task.task_id, TaskStatus.FINISHED)
+                    # await self._event_loop.run_in_executor(self._executor, self._decrypt, (file_path,))
+                print("Here")
+
+                await sleep(5)
+            except asyncio.CancelledError:
                 break
-
-            await sleep(5)
+            except Exception as e:
+                context = {'message': 'Error with decryption process',
+                           'exception': e,
+                           'task': self._decryption_task}
+                self._event_loop.call_exception_handler(context)
 
     async def stop(self):
         if self._decryption_task is not None and not self._decryption_task.cancelled():
             self._decryption_task.cancel()
 
-    def _decrypt(self, file_path):
-        print(f"Decrypt file {file_path}")
+    @staticmethod
+    def _decrypt():
+        print(f"Decrypt file")
         # self._task_manager.handle_task(file_path)

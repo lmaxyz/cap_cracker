@@ -23,7 +23,11 @@ async def start_decrypter(application):
 async def start_sqlite(application):
     db_conn = await aiosqlite.connect("decryption.sqlite3")
     await db_conn.execute(
-        "CREATE TABLE IF NOT EXISTS main.tasks(id INTEGER PRIMARY KEY AUTOINCREMENT, file_path TEXT, status INTEGER)"
+        "CREATE TABLE IF NOT EXISTS tasks"
+        "(id INTEGER PRIMARY KEY AUTOINCREMENT,"
+        "file_path TEXT NOT NULL,"
+        "status INTEGER NOT NULL,"
+        "result TEXT)"
     )
     application['database'] = get_db_client(db_conn)
 
@@ -35,8 +39,9 @@ async def start_redis(application):
     try:
         await redis_conn.connect()
     except BaseException:
-        await redis_client.connection_pool.release(redis_conn)
         raise ConnectionError("Redis server is not available")
+    finally:
+        await redis_client.connection_pool.release(redis_conn)
 
     application['redis'] = redis_client
 

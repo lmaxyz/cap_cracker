@@ -19,7 +19,7 @@ class RedisQueue:
         task_id = await self.__redis_client.rpop(self.__queue_key)
         
         if task_id is not None:
-            task_id = task_id.decode()
+            task_id = int(task_id.decode())
 
         return task_id
 

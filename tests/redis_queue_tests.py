@@ -5,7 +5,7 @@ import aioredis
 import unittest
 
 sys.path.append(str(pathlib.Path(__file__).parent.parent))
-from application.queue import RedisQueue
+from decryption.queue import RedisQueue
 
 
 class TestRedisQueue(aiounittest.AsyncTestCase):

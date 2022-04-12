@@ -28,4 +28,3 @@ async def save_file(file, file_name) -> str:
 async def add_file_to_decryption_queue(file, task_manager: DecryptionTaskManager):
     saved_file_path = await save_file(file.file, file.filename)
     await task_manager.push_new_task(saved_file_path)
-    print("process was started")
