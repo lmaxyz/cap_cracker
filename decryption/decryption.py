@@ -3,7 +3,7 @@ from asyncio import get_event_loop, sleep
 from concurrent.futures import ProcessPoolExecutor
 from .queue import RedisQueue
 from .db_clients import SQLiteClient
-from .task import TaskStatus
+from .task import TaskStatus, Task
 
 
 class DecryptionTaskManager:
@@ -50,15 +50,18 @@ class Decrypter:
             try:
                 if (task := await self._task_manager.get_next_task()) is not None:
                     print(task.path_file)
+                    executor = ProcessPoolExecutor()
+                    # ToDO: Need to try to use asyncio-subprocess
 
-                    await self._event_loop.run_in_executor(self._executor, self._decrypt, self, task.path_file)
+                    await get_event_loop().run_in_executor(executor, self._decrypt, self, task.path_file)
                     await sleep(5)
-                    await self._task_manager.set_task_status(task.task_id, TaskStatus.FINISHED)
+
                     # await self._event_loop.run_in_executor(self._executor, self._decrypt, (file_path,))
                 print("Here")
 
                 await sleep(5)
             except asyncio.CancelledError:
+                print('exit task')
                 break
             except Exception as e:
                 context = {'message': 'Error with decryption process',
@@ -70,7 +73,7 @@ class Decrypter:
         if self._decryption_task is not None and not self._decryption_task.cancelled():
             self._decryption_task.cancel()
 
-    @staticmethod
-    def _decrypt():
-        print(f"Decrypt file")
+    def _decrypt(self, task: Task):
+        print(f"Decrypt file {task.path_file}")
+        await self._task_manager.set_task_status(task.task_id, TaskStatus.FINISHED)
         # self._task_manager.handle_task(file_path)
