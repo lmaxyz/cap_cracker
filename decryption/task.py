@@ -10,10 +10,11 @@ class TaskStatus(IntEnum):
 
 
 @dataclass
-class Task:
+class DecryptionTask:
     task_id: int
-    path_file: str
+    file_name: str
     status: TaskStatus
+    status_msg: str | None = None
 
     @property
     def status_str(self):

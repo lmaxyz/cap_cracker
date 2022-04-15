@@ -26,12 +26,18 @@
                         <th>ID</th>
                         <th>File name</th>
                         <th>Status</th>
+                        <th>Status Message</th>
                     </tr>
                     {% for task in tasks %}
                         <tr>
                             <td>{{ task.task_id }}</td>
-                            <td>{{ task.path_file }}</td>
+                            <td>{{ task.file_name }}</td>
                             <td><b>{{ task.status_str }}</b></td>
+                            {% if task.status_msg %}
+                                <td>{{ task.status_msg }}</td>
+                            {% else %}
+                                <td>{{ task.status_str }}</td>
+                            {% endif %}
                         </tr>
                     {% endfor %}
                 </table>

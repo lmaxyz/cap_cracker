@@ -4,6 +4,10 @@ import aiohttp_jinja2
 from .services import add_file_to_decryption_queue
 
 
+ALLOWED_EXTENSIONS = [
+    "cap", "pcap", "hccapx"
+]
+
 @aiohttp_jinja2.template('index.html')
 async def index(request):
     task_manager = request.app['task_manager']
@@ -15,9 +19,11 @@ async def index(request):
 async def push_to_queue(request: web.Request):
     post = await request.post()
     file = post.get("cap_file")
-    file_name = file.filename
 
-    if not file_name.endswith(".cap") and not file_name.endswith(".pcap"):
+    file_ext = file.filename.split(".")[-1]
+
+    
+    if file_ext not in ALLOWED_EXTENSIONS:
         return web.Response(text="Wrong file format", status=400)
 
     task_manager = request.app['task_manager']

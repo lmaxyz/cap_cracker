@@ -1,5 +1,5 @@
 from aiosqlite import Connection
-from .task import Task, TaskStatus
+from .task import DecryptionTask, TaskStatus
 
 
 class SQLiteClient:
@@ -13,18 +13,24 @@ class SQLiteClient:
         if not row:
             return None
 
-        return Task(row[0], row[1], TaskStatus(row[2]))
+        return DecryptionTask(row[0], row[1], TaskStatus(row[2]), row[3])
 
-    async def add_task(self, file_path: str):
+    async def add_task(self, file_name: str):
         cursor = await self.__conn.cursor()
-        sql_query = f"INSERT INTO tasks (file_path, status) VALUES ('{file_path}', {TaskStatus.WAITING.value})"
+        sql_query = f"INSERT INTO tasks (file_name, status) VALUES ('{file_name}', {TaskStatus.WAITING.value})"
         await cursor.execute(sql_query)
         added_id = cursor.lastrowid
         await self.__conn.commit()
         return added_id
 
-    async def change_task_status(self, task_id: int, task_status: TaskStatus):
-        await self.__conn.execute(f"UPDATE tasks SET status={task_status.value} "
+    async def change_task_status(self, task_id: int, task_status: TaskStatus, status_msg: str = None):
+        update_expression = f"status={task_status.value}"
+        if status_msg is not None:
+            status_msg = status_msg.replace("'", "")
+            update_expression += f", result='{status_msg}'"
+        
+        print(update_expression)
+        await self.__conn.execute(f"UPDATE tasks SET {update_expression} "
                                   f"WHERE id={task_id}")
         await self.__conn.commit()
 
@@ -36,7 +42,8 @@ class SQLiteClient:
                 task_id = int(row[0])
                 file_path = row[1]
                 status = TaskStatus(row[2])
-                tasks.append(Task(task_id, file_path, status))
+                status_msg = row[3]
+                tasks.append(DecryptionTask(task_id, file_path, status, status_msg))
 
         return tasks
 

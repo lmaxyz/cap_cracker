@@ -25,7 +25,7 @@ async def start_sqlite(application):
     await db_conn.execute(
         "CREATE TABLE IF NOT EXISTS tasks"
         "(id INTEGER PRIMARY KEY AUTOINCREMENT,"
-        "file_path TEXT NOT NULL,"
+        "file_name TEXT NOT NULL,"
         "status INTEGER NOT NULL,"
         "result TEXT)"
     )
